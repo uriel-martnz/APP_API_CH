@@ -12,7 +12,14 @@ class UsuarioCreate(UsuarioBase):
 
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
-    contrasena: Optional[str] = None
+    apellidos: Optional[str] = None
+    email: Optional[EmailStr] = None
+    telefono: Optional[str] = None
+    especialidad: Optional[str] = None
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
 
 class UsuarioLogin(BaseModel):
     email: EmailStr
