@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: appchris-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        scope: build
+        value: sqlite:///./medical_app.db
