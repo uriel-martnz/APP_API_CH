@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from models.usuario import Usuario
 from models.settings import Settings
-from schemas.usuario import UsuarioCreate, UsuarioLogin, Usuario as UsuarioSchema, Token, UsuarioUpdate
+from schemas.usuario import UsuarioCreate, UsuarioLogin, Usuario as UsuarioSchema, Token, UsuarioUpdate, ChangePassword
 from utils.security import verify_password, get_password_hash, create_access_token
 from utils.dependencies import get_current_user
 import uuid
@@ -74,10 +74,48 @@ def update_me(
     if usuario_update.nombre is not None:
         current_user.nombre = usuario_update.nombre
 
-    if usuario_update.contrasena is not None:
-        current_user.contrasena = get_password_hash(usuario_update.contrasena)
+    if usuario_update.apellidos is not None:
+        current_user.apellidos = usuario_update.apellidos
+
+    if usuario_update.email is not None:
+        # Verificar que el email no esté en uso por otro usuario
+        existing_user = db.query(Usuario).filter(
+            Usuario.email == usuario_update.email,
+            Usuario.id_usuario != current_user.id_usuario
+        ).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El email ya está en uso"
+            )
+        current_user.email = usuario_update.email
+
+    if usuario_update.telefono is not None:
+        current_user.telefono = usuario_update.telefono
+
+    if usuario_update.especialidad is not None:
+        current_user.especialidad = usuario_update.especialidad
 
     db.commit()
     db.refresh(current_user)
 
     return current_user
+
+@router.put("/change-password", response_model=dict)
+def change_password(
+    password_data: ChangePassword,
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Verificar que la contraseña actual sea correcta
+    if not verify_password(password_data.current_password, current_user.contrasena):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contraseña actual es incorrecta"
+        )
+
+    # Actualizar contraseña
+    current_user.contrasena = get_password_hash(password_data.new_password)
+    db.commit()
+
+    return {"message": "Contraseña actualizada exitosamente"}

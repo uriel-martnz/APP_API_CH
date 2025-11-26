@@ -1,25 +1,37 @@
 from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
+from typing import Optional, Dict, Any
+from datetime import datetime, date
+
+class SignosVitales(BaseModel):
+    presion_sistolica: Optional[float] = None
+    presion_diastolica: Optional[float] = None
+    frecuencia_cardiaca: Optional[float] = None
+    temperatura: Optional[float] = None
+    peso: Optional[float] = None
+    altura: Optional[float] = None
+    saturacion_oxigeno: Optional[float] = None
+    frecuencia_respiratoria: Optional[float] = None
 
 class NotaBase(BaseModel):
-    contenido: str
-    peso: Optional[float] = None
-    presion_sistolica: Optional[float] = None
-    presion_diastolica: Optional[float] = None
-    pulso: Optional[float] = None
-    autor: Optional[str] = None
+    fecha: date
+    motivo_consulta: Optional[str] = None
+    sintomas: Optional[str] = None
+    diagnostico: str
+    tratamiento: Optional[str] = None
+    observaciones: Optional[str] = None
+    signos_vitales: Optional[Dict[str, Any]] = None
 
 class NotaCreate(NotaBase):
-    id_paciente: str
+    pass
 
 class NotaUpdate(BaseModel):
-    contenido: Optional[str] = None
-    peso: Optional[float] = None
-    presion_sistolica: Optional[float] = None
-    presion_diastolica: Optional[float] = None
-    pulso: Optional[float] = None
-    autor: Optional[str] = None
+    fecha: Optional[date] = None
+    motivo_consulta: Optional[str] = None
+    sintomas: Optional[str] = None
+    diagnostico: Optional[str] = None
+    tratamiento: Optional[str] = None
+    observaciones: Optional[str] = None
+    signos_vitales: Optional[Dict[str, Any]] = None
 
 class Nota(NotaBase):
     id_nota: str
